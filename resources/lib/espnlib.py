@@ -41,13 +41,6 @@ class espnlib(object):
         def __str__(self):
             return repr(self.value)
 
-    class AuthFailure(Exception):
-        def __init__(self, value):
-            self.value = value
-
-        def __str__(self):
-            return repr(self.value)
-
     def log(self, string):
         if self.debug:
             try:
