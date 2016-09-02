@@ -174,7 +174,7 @@ def router(paramstring):
         try:
             espn.login(username, password)
             services_menu()
-        except espn.LoginFailure as error:
+        except espn.LoginFailure:
             addon_log('login failed')
             dialog = xbmcgui.Dialog()
             dialog.ok(language(30005),
