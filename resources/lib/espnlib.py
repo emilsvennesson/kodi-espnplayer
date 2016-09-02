@@ -3,20 +3,11 @@
 A Kodi-agnostic library for ESPN Player
 """
 import codecs
-import os
 import cookielib
-import calendar
-from datetime import datetime, timedelta
-import time
 from urllib import urlencode
-import re
-import json
-import uuid
-import HTMLParser
 
 import requests
 import m3u8
-
 import xmltodict
 
 
