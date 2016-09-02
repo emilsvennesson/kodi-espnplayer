@@ -172,10 +172,10 @@ class espnlib(object):
         pkan = self.make_request(url=url, method='get', payload=payload)
         return pkan
         
-    def get_stream_url(self, airingId):
+    def get_stream_url(self, airingId, channel='espn3'):
         url = 'http://neulion.go.com/espngeo/startSession'
         payload = {
-            'channel': 'espn3',
+            'channel': channel,
             'simulcastAiringId': airingId,
             'playbackScenario': 'HTTP_CLOUD_WIRED',
             'playerId': 'neulion',
