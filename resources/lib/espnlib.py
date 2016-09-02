@@ -16,6 +16,7 @@ import HTMLParser
 
 import requests
 import xmltodict
+import m3u8
 
 
 class espnlib(object):
@@ -58,7 +59,7 @@ class espnlib(object):
             except:
                 pass
 
-    def make_request(self, url, method, payload=None, headers=None):
+    def make_request(self, url, method, payload=None, headers=None, return_req=False):
         """Make an http request. Return the response."""
         self.log('Request URL: %s' % url)
         self.log('Headers: %s' % headers)
@@ -72,7 +73,10 @@ class espnlib(object):
             self.log('Response code: %s' % req.status_code)
             self.log('Response: %s' % req.content)
             self.cookie_jar.save(ignore_discard=True, ignore_expires=False)
-            return req.content
+            if return_req:
+                return req
+            else:
+                return req.content
         except requests.exceptions.HTTPError as error:
             self.log('An HTTP error occurred: %s' % error)
             raise
@@ -173,6 +177,8 @@ class espnlib(object):
         return pkan
         
     def get_stream_url(self, airingId, channel='espn3'):
+        stream_url = {}
+        auth_cookie = None
         url = 'http://neulion.go.com/espngeo/startSession'
         payload = {
             'channel': channel,
@@ -184,9 +190,17 @@ class espnlib(object):
             'tokenType': 'GATEKEEPER',
             'ttl': '480'
         }
-        stream_data = self.make_request(url=url, method='post', payload=payload)
+        req = self.make_request(url=url, method='post', payload=payload, return_req=True)
+        stream_data = req.content
         stream_dict = xmltodict.parse(stream_data)['user-verified-media-response']
-        stream_url = stream_dict['user-verified-event']['user-verified-content']['user-verified-media-item']['url']
+        
+        if req.cookies:
+            self.log('Cookies: %s' % req.cookies)
+            if '_mediaAuth' in req.cookies.keys():
+                auth_cookie = '_mediaAuth=%s' % req.cookies['_mediaAuth']
+        
+        stream_url['manifest'] = stream_dict['user-verified-event']['user-verified-content']['user-verified-media-item']['url']
+        stream_url['bitrates'] = self.parse_m3u8_manifest(stream_url['manifest'], auth_cookie=auth_cookie)
         
         return stream_url
         
@@ -206,3 +220,26 @@ class espnlib(object):
             channels[channel_name] = channel_id
             
         return channels
+
+    def parse_m3u8_manifest(self, manifest_url, auth_cookie=None):
+        """Return the stream URL along with its bitrate."""
+        streams = {}
+        req = requests.get(manifest_url)
+        m3u8_manifest = req.content
+        self.log('HLS manifest: \n %s' % m3u8_manifest)
+
+        m3u8_header = {'Cookie': auth_cookie,
+                       'User-Agent': 'ESPN2016/6.0817 CFNetwork/711.1.16 Darwin/14.0.0',
+                       'Accept-Encoding': 'gzip, deflate',
+                       'Connection': 'keep-alive'}
+                       
+        m3u8_obj = m3u8.loads(m3u8_manifest)
+        for playlist in m3u8_obj.playlists:
+            bitrate = int(playlist.stream_info.bandwidth) / 1000
+            if playlist.uri.startswith('http'):
+                stream_url = playlist.uri
+            else:
+                stream_url = manifest_url[:manifest_url.rfind('/') + 1] + playlist.uri
+            streams[str(bitrate)] = stream_url + '|' + urlencode(m3u8_header)
+
+        return streams

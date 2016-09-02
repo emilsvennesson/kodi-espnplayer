@@ -115,9 +115,40 @@ def play_video(airringId, channel=None):
         stream_url = espn.get_stream_url(airringId, channel)
     else:
         stream_url = espn.get_stream_url(airringId)
-    playitem = xbmcgui.ListItem(path=stream_url)
-    playitem.setProperty('IsPlayable', 'true')
-    xbmcplugin.setResolvedUrl(_handle, True, listitem=playitem)
+
+    bitrate = select_bitrate(stream_url['bitrates'].keys())
+    if bitrate:
+        play_url = stream_url['bitrates'][bitrate]
+        playitem = xbmcgui.ListItem(path=play_url)
+        playitem.setProperty('IsPlayable', 'true')
+        xbmcplugin.setResolvedUrl(_handle, True, listitem=playitem)
+
+ 
+def ask_bitrate(bitrates):
+    """Presents a dialog for user to select from a list of bitrates.
+    Returns the value of the selected bitrate."""
+    options = []
+    for bitrate in bitrates:
+        options.append(bitrate + ' Kbps')
+    dialog = xbmcgui.Dialog()
+    ret = dialog.select(language(30010), options)
+    if ret > -1:
+        return bitrates[ret]
+
+
+def select_bitrate(manifest_bitrates=None):
+    """Returns a bitrate while honoring the user's preference."""
+    bitrate_setting = int(addon.getSetting('preferred_bitrate'))
+    if bitrate_setting == 0:
+        preferred_bitrate = 'highest'
+    else:
+        preferred_bitrate = 'ask'
+
+    manifest_bitrates.sort(key=int, reverse=True)
+    if preferred_bitrate == 'highest':
+        return manifest_bitrates[0]
+    else:
+        return ask_bitrate(manifest_bitrates)
 
 def router(paramstring):
     """Router function that calls other functions depending on the provided paramstring."""
