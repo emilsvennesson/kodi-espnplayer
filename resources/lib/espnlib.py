@@ -117,8 +117,12 @@ class espnlib(object):
         url = self.simpleconsole_url
         post_data = {'isFlex': 'true'}
         sc_data = self.make_request(url=url, method='post', payload=post_data)
+        sc_dict = xmltodict.parse(sc_data)['result']
 
-        if '</userName>' not in sc_data:
+        if sc_dict['isBlocked'] == 'true':
+            self.log('ESPN Player is geo blocked.')
+            return False
+        elif '</userName>' not in sc_data:
             self.log('No user name detected in ESPN Player response.')
             return False
         elif '</subscriptions>' not in sc_data:
