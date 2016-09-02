@@ -42,11 +42,12 @@ espn = espnlib(cookie_file, debug)
 def addon_log(string):
     if debug:
         xbmc.log("%s: %s" % (logging_prefix, string))
-        
+
+
 def services_menu():
     listing = []
     services = espn.get_services()
-    
+
     for name, service in services.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'false')
@@ -56,18 +57,18 @@ def services_menu():
         listing.append((recursive_url, listitem, is_folder))
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
-    
+
+
 def main_menu(service):
     listing = []
     items = ['live', 'upcoming', 'archive', 'channels']
-    
-    
+
     for item in items:
         if item == 'live':
             game_status = 'inplay'
         else:
             game_status = item
-            
+
         listitem = xbmcgui.ListItem(label=item.title())
         listitem.setProperty('IsPlayable', 'false')
         if item == 'channels':
@@ -79,11 +80,12 @@ def main_menu(service):
         listing.append((recursive_url, listitem, is_folder))
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
-    
+
+
 def list_games(service, game_status):
     listing = []
     games = espn.get_games(service)
-    
+
     for game in games:
         if game['game_status'] == game_status:
             listitem = xbmcgui.ListItem(label=game['name'])
@@ -94,11 +96,12 @@ def list_games(service, game_status):
             listing.append((recursive_url, listitem, is_folder))
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
-    
+
+
 def list_channels(service):
     listing = []
     channels = espn.get_channels(service)
-    
+
     for name, id in channels.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'true')
@@ -109,7 +112,8 @@ def list_channels(service):
         listing.append((recursive_url, listitem, is_folder))
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
-    
+
+
 def play_video(airringId, channel=None):
     if channel:
         stream_url = espn.get_stream_url(airringId, channel)
@@ -123,7 +127,7 @@ def play_video(airringId, channel=None):
         playitem.setProperty('IsPlayable', 'true')
         xbmcplugin.setResolvedUrl(_handle, True, listitem=playitem)
 
- 
+
 def ask_bitrate(bitrates):
     """Presents a dialog for user to select from a list of bitrates.
     Returns the value of the selected bitrate."""
@@ -150,6 +154,7 @@ def select_bitrate(manifest_bitrates=None):
     else:
         return ask_bitrate(manifest_bitrates)
 
+
 def router(paramstring):
     """Router function that calls other functions depending on the provided paramstring."""
     params = dict(urlparse.parse_qsl(paramstring))
@@ -165,7 +170,7 @@ def router(paramstring):
         elif params['action'] == 'play_channel':
             play_video(params['airringId'], params['channel'])
     else:
-    
+
         try:
             espn.login(username, password)
             services_menu()
@@ -174,7 +179,7 @@ def router(paramstring):
             dialog = xbmcgui.Dialog()
             dialog.ok(language(30005),
                       language(30006))
-            
+
             sys.exit(0)
 
 

@@ -15,8 +15,9 @@ import uuid
 import HTMLParser
 
 import requests
-import xmltodict
 import m3u8
+
+import xmltodict
 
 
 class espnlib(object):
@@ -86,7 +87,7 @@ class espnlib(object):
         except requests.exceptions.RequestException as error:
             self.log('Error: - %s' % error.value)
             raise
-            
+
     def login(self, username=None, password=None):
         """Complete login process for ESPN Player. Errors (auth issues, blackout,
         etc) are raised as LoginFailure.
@@ -114,7 +115,7 @@ class espnlib(object):
             'password': password
         }
         self.make_request(url=url, method='post', payload=post_data)
-        
+
     def check_for_subscription(self):
         """Return whether a subscription and user name are detected. Determines
         whether a login was successful."""
@@ -135,7 +136,7 @@ class espnlib(object):
         else:
             self.log('Subscription and user name detected in ESPN Player response.')
             return True
-            
+
     def get_services(self):
         """Return a dict of the services the user is subscribed to."""
         services = {}
@@ -144,16 +145,16 @@ class espnlib(object):
         post_data = {'isFlex': 'true'}
         sc_data = self.make_request(url=url, method='post', payload=post_data)
         sc_dict = xmltodict.parse(sc_data)['result']
-        
+
         for service in sc_dict['user']['subscriptions'].values():
             subscribed_services.append(service)
-        
+
         for service in sc_dict['leagues']['league']:
             if service['type'] in subscribed_services:
                 services[service['name']] = service['type']
-        
+
         return services
-        
+
     def get_games(self, service, category='all'):
         url = self.servlets_url + '/games'
         payload = {
@@ -161,13 +162,13 @@ class espnlib(object):
             'category': category,
             'format': 'xml'
         }
-        
+
         game_data = self.make_request(url=url, method='get', payload=payload)
         game_dict = xmltodict.parse(game_data)['EspnPlayerGameData']
         games = game_dict['Games']['Game']
-        
+
         return games
-        
+
     def get_pkan(self, airingId):
         url = 'http://neulion.go.com/espngeo/dgetpkan'
         payload = {
@@ -175,7 +176,7 @@ class espnlib(object):
         }
         pkan = self.make_request(url=url, method='get', payload=payload)
         return pkan
-        
+
     def get_stream_url(self, airingId, channel='espn3'):
         stream_url = {}
         auth_cookie = None
@@ -193,32 +194,32 @@ class espnlib(object):
         req = self.make_request(url=url, method='post', payload=payload, return_req=True)
         stream_data = req.content
         stream_dict = xmltodict.parse(stream_data)['user-verified-media-response']
-        
+
         if req.cookies:
             self.log('Cookies: %s' % req.cookies)
             if '_mediaAuth' in req.cookies.keys():
                 auth_cookie = '_mediaAuth=%s' % req.cookies['_mediaAuth']
-        
+
         stream_url['manifest'] = stream_dict['user-verified-event']['user-verified-content']['user-verified-media-item']['url']
         stream_url['bitrates'] = self.parse_m3u8_manifest(stream_url['manifest'], auth_cookie=auth_cookie)
-        
+
         return stream_url
-        
+
     def get_channels(self, service):
         channels = {}
         url = self.servlets_url + '/channels'
         payload = {
             'product': service
         }
-        
+
         channel_data = self.make_request(url=url, method='get', payload=payload)
         channel_dict = xmltodict.parse(channel_data)['channels']['channel']
-        
+
         for channel in channel_dict:
             channel_name = channel['name']
             channel_id = channel['id']
             channels[channel_name] = channel_id
-            
+
         return channels
 
     def parse_m3u8_manifest(self, manifest_url, auth_cookie=None):
@@ -232,7 +233,7 @@ class espnlib(object):
                        'User-Agent': 'ESPN2016/6.0817 CFNetwork/711.1.16 Darwin/14.0.0',
                        'Accept-Encoding': 'gzip, deflate',
                        'Connection': 'keep-alive'}
-                       
+
         m3u8_obj = m3u8.loads(m3u8_manifest)
         for playlist in m3u8_obj.playlists:
             bitrate = int(playlist.stream_info.bandwidth) / 1000
