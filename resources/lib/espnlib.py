@@ -146,10 +146,10 @@ class espnlib(object):
         
         return services
         
-    def get_games(self, product, category='all'):
+    def get_games(self, service, category='all'):
         url = self.servlets_url + '/games'
         payload = {
-            'product': product,
+            'product': service,
             'category': category,
             'format': 'xml'
         }
@@ -186,9 +186,13 @@ class espnlib(object):
         
         return stream_url
         
-    def get_channels(self, product):
+    def get_channels(self, service):
         channels = {}
         url = self.servlets_url + '/channels'
+        payload = {
+            'product': service
+        }
+        
         channel_data = self.make_request(url=url, method='get', payload=payload)
         channel_dict = xmltodict.parse(channel_data)['channels']['channel']
         

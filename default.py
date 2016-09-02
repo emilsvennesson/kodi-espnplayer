@@ -50,16 +50,16 @@ def services_menu():
     for name, service in services.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'false')
-        parameters = {'action': 'list_games', 'product': service}
+        parameters = {'action': 'list_games', 'service': service}
         recursive_url = _url + '?' + urllib.urlencode(parameters)
         is_folder = True
         listing.append((recursive_url, listitem, is_folder))
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
     
-def list_games(product):
+def list_games(service):
     listing = []
-    games = espn.get_games(product)
+    games = espn.get_games(service)
     
     for game in games:
         if game['game_status'] == 'inplay' or game['game_status'] == 'archive':
@@ -84,7 +84,7 @@ def router(paramstring):
     params = dict(urlparse.parse_qsl(paramstring))
     if params:
         if params['action'] == 'list_games':
-            list_games(params['product'])
+            list_games(params['service'])
         elif params['action'] == 'play_video':
             play_video(params['airringId'])
     else:
