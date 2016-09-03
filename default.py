@@ -90,7 +90,7 @@ def list_games(service, game_status):
         if game['game_status'] == game_status:
             listitem = xbmcgui.ListItem(label=game['name'])
             listitem.setProperty('IsPlayable', 'true')
-            parameters = {'action': 'play_video', 'airringId': game['airringId']}
+            parameters = {'action': 'play_video', 'airringId': game['airring_id']}
             recursive_url = _url + '?' + urllib.urlencode(parameters)
             is_folder = False
             listing.append((recursive_url, listitem, is_folder))

@@ -2,6 +2,7 @@
 """
 A Kodi-agnostic library for ESPN Player
 """
+import json
 import codecs
 import cookielib
 from urllib import urlencode
@@ -144,12 +145,12 @@ class espnlib(object):
         payload = {
             'product': service,
             'category': category,
-            'format': 'xml'
+            'format': 'json'
         }
 
         game_data = self.make_request(url=url, method='get', payload=payload)
-        game_dict = xmltodict.parse(game_data)['EspnPlayerGameData']
-        games = game_dict['Games']['Game']
+        game_dict = json.loads(game_data)
+        games = game_dict['games']
 
         return games
 
