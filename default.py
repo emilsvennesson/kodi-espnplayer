@@ -6,6 +6,8 @@ import sys
 import os
 import urllib
 import urlparse
+import time
+from datetime import datetime
 
 from resources.lib.espnlib import espnlib
 
@@ -87,9 +89,13 @@ def list_games(service, game_status):
     games = espn.get_games(service)
 
     for game in games:
+        date_time_format = '%Y-%m-%dT%H:%M:%S'
+        datetime_obj = datetime(*(time.strptime(game['game_date_local'], date_time_format)[0:6]))
         if game['game_status'] == game_status:
-            listitem = xbmcgui.ListItem(label=game['name'])
+            title = '%s (%s)' % (game['name'], datetime_obj.strftime('%Y-%m-%d %H:%M'))
+            listitem = xbmcgui.ListItem(label=title)
             listitem.setProperty('IsPlayable', 'true')
+            set_art(listitem, game['game_image'].split('.jpg')[0] + '.jpg')
             parameters = {'action': 'play_video', 'airringId': game['airring_id']}
             recursive_url = _url + '?' + urllib.urlencode(parameters)
             is_folder = False
@@ -105,7 +111,7 @@ def list_channels(service):
     for name, id in channels.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'true')
-        listitem.setArt({'thumb': 'http://neulionms-a.akamaihd.net/espn/player/espnplayer/static/images_v3/leagues/ESPN_COLLEGE_PASS/channel_logo_%s.png' % id})
+        listitem.setArt({'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % id})
         parameters = {'action': 'play_channel', 'airringId': '0', 'channel': id}
         recursive_url = _url + '?' + urllib.urlencode(parameters)
         is_folder = False
@@ -163,6 +169,15 @@ def select_bitrate(manifest_bitrates=None):
             return allowed_bitrates[0]
     else:
         return ask_bitrate(manifest_bitrates)
+        
+def set_art(listitem, game_image):
+    art = {
+        'thumb': game_image,
+        'fanart': game_image,
+        'cover': game_image,
+}
+
+    listitem.setArt(art)
 
 
 def router(paramstring):
