@@ -49,16 +49,20 @@ def addon_log(string):
 def services_menu():
     listing = []
     services = espn.get_services()
-
-    for name, service in services.items():
-        listitem = xbmcgui.ListItem(label=name)
-        listitem.setProperty('IsPlayable', 'false')
-        parameters = {'action': 'main_menu', 'service': service}
-        recursive_url = _url + '?' + urllib.urlencode(parameters)
-        is_folder = True
-        listing.append((recursive_url, listitem, is_folder))
-    xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(_handle)
+    
+    if len(services) == 1:
+        # list main menu directly if one service is found
+        main_menu(services.values()[0])
+    else:
+        for name, service in services.items():
+            listitem = xbmcgui.ListItem(label=name)
+            listitem.setProperty('IsPlayable', 'false')
+            parameters = {'action': 'main_menu', 'service': service}
+            recursive_url = _url + '?' + urllib.urlencode(parameters)
+            is_folder = True
+            listing.append((recursive_url, listitem, is_folder))
+        xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
+        xbmcplugin.endOfDirectory(_handle)
 
 
 def main_menu(service):
