@@ -60,3 +60,7 @@ msgstr ""
 msgctxt "#30012"
 msgid "Max bitrate allowed (Kbps)"
 msgstr ""
+
+msgctxt "#30013"
+msgid "Unable to find a valid stream URL. Please see the log for more information."
+msgstr ""

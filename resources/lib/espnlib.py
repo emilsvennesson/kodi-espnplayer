@@ -164,6 +164,7 @@ class espnlib(object):
 
     def get_stream_url(self, airingId, channel='espn3'):
         stream_url = {}
+        stream_url['bitrates'] = {}
         auth_cookie = None
         url = 'http://neulion.go.com/espngeo/startSession'
         payload = {
@@ -178,15 +179,37 @@ class espnlib(object):
         }
         req = self.make_request(url=url, method='post', payload=payload, return_req=True)
         stream_data = req.content
-        stream_dict = xmltodict.parse(stream_data)['user-verified-media-response']
+        
+        try:
+            stream_dict = xmltodict.parse(stream_data)['user-verified-media-response']['user-verified-event']['user-verified-content']['user-verified-media-item']
+        except KeyError:
+            self.log('Unable to get stream dict.')
+            stream_dict = False
 
         if req.cookies:
             self.log('Cookies: %s' % req.cookies)
             if '_mediaAuth' in req.cookies.keys():
                 auth_cookie = '_mediaAuth=%s' % req.cookies['_mediaAuth']
-
-        stream_url['manifest'] = stream_dict['user-verified-event']['user-verified-content']['user-verified-media-item']['url']
-        stream_url['bitrates'] = self.parse_m3u8_manifest(stream_url['manifest'], auth_cookie=auth_cookie)
+                
+        if stream_dict:        
+            if stream_dict['url']:
+                self.log('HLS manifest found (primary).')
+                stream_url['manifest'] = stream_dict['url']
+            elif stream_dict['hls-backup-url']:
+                self.log('HLS manifest found (backup).')
+                stream_url['manifest'] = stream_dict['hls-backup-url']
+            elif stream_dict['alt-url']:
+                self.log('HLS manifest found (alternative).')
+                stream_url['manifest'] = stream_dict['alt-url']
+            else:
+                self.log('No HLS manifest found.')
+                stream_url['manifest'] = None
+            
+        if stream_url['manifest']:
+            if stream_url['manifest'].startswith('http'):
+                stream_url['bitrates'] = self.parse_m3u8_manifest(stream_url['manifest'], auth_cookie=auth_cookie)
+            else:
+                self.log('Invalid manifest URL found: %s' % stream_url['manifest'])
 
         return stream_url
 

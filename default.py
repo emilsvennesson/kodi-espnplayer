@@ -129,13 +129,16 @@ def play_video(airringId, channel=None):
         stream_url = espn.get_stream_url(airringId, channel)
     else:
         stream_url = espn.get_stream_url(airringId)
-
-    bitrate = select_bitrate(stream_url['bitrates'].keys())
-    if bitrate:
-        play_url = stream_url['bitrates'][bitrate]
-        playitem = xbmcgui.ListItem(path=play_url)
-        playitem.setProperty('IsPlayable', 'true')
-        xbmcplugin.setResolvedUrl(_handle, True, listitem=playitem)
+    if stream_url['bitrates']:
+        bitrate = select_bitrate(stream_url['bitrates'].keys())
+        if bitrate:
+            play_url = stream_url['bitrates'][bitrate]
+            playitem = xbmcgui.ListItem(path=play_url)
+            playitem.setProperty('IsPlayable', 'true')
+            xbmcplugin.setResolvedUrl(_handle, True, listitem=playitem)
+    else:
+        dialog = xbmcgui.Dialog()
+        dialog.ok(language(30005), language(30013))
 
 
 def ask_bitrate(bitrates):
