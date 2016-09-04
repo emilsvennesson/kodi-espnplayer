@@ -77,6 +77,7 @@ def main_menu(service):
 
         listitem = xbmcgui.ListItem(label=item.title())
         listitem.setProperty('IsPlayable', 'false')
+        set_art(listitem)
         if item == 'channels':
             parameters = {'action': 'list_channels', 'service': service}
         else:
@@ -177,13 +178,19 @@ def select_bitrate(manifest_bitrates=None):
     else:
         return ask_bitrate(manifest_bitrates)
         
-def set_art(listitem, game_image):
-    art = {
-        'thumb': game_image,
-        'fanart': game_image,
-        'cover': game_image,
-}
-
+def set_art(listitem, game_image=None):
+    if game_image:
+        art = {
+            'thumb': game_image,
+            'fanart': game_image,
+            'cover': game_image,
+            }    
+        listitem.setArt(art)
+    else:
+        art = {
+            'icon': os.path.join(addon_path, 'icon.png'),
+            'fanart': os.path.join(addon_path, 'fanart.jpg')
+            }       
     listitem.setArt(art)
 
 
