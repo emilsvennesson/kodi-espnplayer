@@ -49,7 +49,7 @@ def addon_log(string):
 def services_menu():
     listing = []
     services = espn.get_services()
-    
+
     if len(services) == 1:
         # list main menu directly if one service is found
         main_menu(services.values()[0])
@@ -116,7 +116,8 @@ def list_channels(service):
     for name, id in channels.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'true')
-        listitem.setArt({'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % id})
+        listitem.setArt(
+            {'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % id})
         parameters = {'action': 'play_channel', 'airringId': '0', 'channel': id}
         recursive_url = _url + '?' + urllib.urlencode(parameters)
         is_folder = False
@@ -177,20 +178,21 @@ def select_bitrate(manifest_bitrates=None):
             return allowed_bitrates[0]
     else:
         return ask_bitrate(manifest_bitrates)
-        
+
+
 def set_art(listitem, game_image=None):
     if game_image:
         art = {
             'thumb': game_image,
             'fanart': game_image,
             'cover': game_image,
-            }    
+        }
         listitem.setArt(art)
     else:
         art = {
             'icon': os.path.join(addon_path, 'icon.png'),
             'fanart': os.path.join(addon_path, 'fanart.jpg')
-            }       
+        }
     listitem.setArt(art)
 
 

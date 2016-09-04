@@ -179,7 +179,7 @@ class espnlib(object):
         }
         req = self.make_request(url=url, method='post', payload=payload, return_req=True)
         stream_data = req.content
-        
+
         try:
             stream_dict = xmltodict.parse(stream_data)['user-verified-media-response']['user-verified-event']['user-verified-content']['user-verified-media-item']
         except KeyError:
@@ -190,8 +190,8 @@ class espnlib(object):
             self.log('Cookies: %s' % req.cookies)
             if '_mediaAuth' in req.cookies.keys():
                 auth_cookie = '_mediaAuth=%s' % req.cookies['_mediaAuth']
-                
-        if stream_dict:        
+
+        if stream_dict:
             if stream_dict['url']:
                 self.log('HLS manifest found (primary).')
                 stream_url['manifest'] = stream_dict['url']
@@ -204,7 +204,7 @@ class espnlib(object):
             else:
                 self.log('No HLS manifest found.')
                 stream_url['manifest'] = None
-            
+
         if stream_url['manifest']:
             if stream_url['manifest'].startswith('http'):
                 stream_url['bitrates'] = self.parse_m3u8_manifest(stream_url['manifest'], auth_cookie=auth_cookie)
