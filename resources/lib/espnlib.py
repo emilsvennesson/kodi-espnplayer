@@ -164,7 +164,6 @@ class espnlib(object):
 
     def get_stream_url(self, airingId, channel='espn3'):
         stream_url = {}
-        stream_url['bitrates'] = {}
         auth_cookie = None
         url = 'http://neulion.go.com/espngeo/startSession'
         payload = {
@@ -193,43 +192,27 @@ class espnlib(object):
 
         if stream_dict:
             if stream_dict['url']:
-                self.log('HLS manifest found (primary).')
                 stream_url['manifest'] = stream_dict['url']
+                self.log('HLS manifest found (primary).')
             elif stream_dict['hls-backup-url']:
-                self.log('HLS manifest found (backup).')
                 stream_url['manifest'] = stream_dict['hls-backup-url']
+                self.log('HLS manifest found (backup).')
             elif stream_dict['alt-url']:
-                self.log('HLS manifest found (alternative).')
                 stream_url['manifest'] = stream_dict['alt-url']
+                self.log('HLS manifest found (alternative).')
             else:
-                self.log('No HLS manifest found.')
                 stream_url['manifest'] = None
+                self.log('No HLS manifest found.')
 
         if stream_url['manifest']:
             if stream_url['manifest'].startswith('http'):
                 stream_url['bitrates'] = self.parse_m3u8_manifest(stream_url['manifest'], auth_cookie=auth_cookie)
             else:
+                stream_url['bitrates'] = []
                 self.log('Invalid manifest URL found: %s' % stream_url['manifest'])
 
         return stream_url
-
-    def get_channels(self, service):
-        channels = {}
-        url = self.servlets_url + '/channels'
-        payload = {
-            'product': service
-        }
-
-        channel_data = self.make_request(url=url, method='get', payload=payload)
-        channel_dict = xmltodict.parse(channel_data)['channels']['channel']
-
-        for channel in channel_dict:
-            channel_name = channel['name']
-            channel_id = channel['id']
-            channels[channel_name] = channel_id
-
-        return channels
-
+        
     def parse_m3u8_manifest(self, manifest_url, auth_cookie=None):
         """Return the stream URL along with its bitrate."""
         streams = {}
@@ -252,3 +235,20 @@ class espnlib(object):
             streams[str(bitrate)] = stream_url + '|' + urlencode(m3u8_header)
 
         return streams
+
+    def get_channels(self, service):
+        channels = {}
+        url = self.servlets_url + '/channels'
+        payload = {
+            'product': service
+        }
+
+        channel_data = self.make_request(url=url, method='get', payload=payload)
+        channel_dict = xmltodict.parse(channel_data)['channels']['channel']
+
+        for channel in channel_dict:
+            channel_name = channel['name']
+            channel_id = channel['id']
+            channels[channel_name] = channel_id
+
+        return channels
