@@ -190,8 +190,6 @@ class espnlib(object):
             for cookie in req.cookies:
                 if cookie.name == '_mediaAuth':
                     auth_cookie = '%s=%s; path=%s; domain=%s;' % (cookie.name, cookie.value, cookie.path, cookie.domain)
-        else:
-            auth_cookie = None
 
         if stream_dict:
             if stream_dict['url']:
