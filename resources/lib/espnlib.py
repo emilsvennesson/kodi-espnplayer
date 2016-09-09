@@ -187,8 +187,11 @@ class espnlib(object):
 
         if req.cookies:
             self.log('Cookies: %s' % req.cookies)
-            if '_mediaAuth' in req.cookies.keys():
-                auth_cookie = '_mediaAuth=%s' % req.cookies['_mediaAuth']
+            for cookie in req.cookies:
+                if cookie.name == '_mediaAuth':
+                    auth_cookie = '%s=%s; path=%s; domain=%s;' % (cookie.name, cookie.value, cookie.path, cookie.domain)
+        else:
+            auth_cookie = None
 
         if stream_dict:
             if stream_dict['url']:
@@ -220,10 +223,7 @@ class espnlib(object):
         m3u8_manifest = req.content
         self.log('HLS manifest: \n %s' % m3u8_manifest)
 
-        m3u8_header = {'Cookie': auth_cookie,
-                       'User-Agent': 'ESPN2016/6.0817 CFNetwork/711.1.16 Darwin/14.0.0',
-                       'Accept-Encoding': 'gzip, deflate',
-                       'Connection': 'keep-alive'}
+        m3u8_header = {'Cookie': auth_cookie}
 
         m3u8_obj = m3u8.loads(m3u8_manifest)
         for playlist in m3u8_obj.playlists:
