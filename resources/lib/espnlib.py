@@ -115,7 +115,7 @@ class espnlib(object):
         elif '</userName>' not in sc_data:
             self.log('No user name detected in ESPN Player response.')
             return False
-        elif '</subscriptions>' not in sc_data:
+        elif '</product>' not in sc_data:
             self.log('No subscription detected in ESPN Player response.')
             return False
         else:
