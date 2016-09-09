@@ -34,7 +34,7 @@ msgid "Error"
 msgstr ""
 
 msgctxt "#30006"
-msgid "Login failed. Please make sure that your account information is correct."
+msgid "Login failed. Please make sure that your account information is correct and that you have a valid subscription to ESPN Player."
 msgstr ""
 
 msgctxt "#30007"
