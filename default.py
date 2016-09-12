@@ -47,7 +47,6 @@ def addon_log(string):
 
 
 def services_menu():
-    listing = []
     services = espn.get_services()
 
     if len(services) == 1:
@@ -55,13 +54,8 @@ def services_menu():
         main_menu(services.values()[0])
     else:
         for name, service in services.items():
-            listitem = xbmcgui.ListItem(label=name)
-            listitem.setProperty('IsPlayable', 'false')
             parameters = {'action': 'main_menu', 'service': service}
-            recursive_url = _url + '?' + urllib.urlencode(parameters)
-            is_folder = True
-            listing.append((recursive_url, listitem, is_folder))
-        xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
+            add_item(name, parameters)
         xbmcplugin.endOfDirectory(_handle)
 
 
@@ -75,22 +69,18 @@ def main_menu(service):
         else:
             game_status = item
 
-        listitem = xbmcgui.ListItem(label=item.title())
-        listitem.setProperty('IsPlayable', 'false')
-        set_art(listitem)
+        title = item.title()
         if item == 'channels':
             parameters = {'action': 'list_channels', 'service': service}
         else:
             parameters = {'action': 'list_games', 'service': service, 'game_status': game_status}
-        recursive_url = _url + '?' + urllib.urlencode(parameters)
-        is_folder = True
-        listing.append((recursive_url, listitem, is_folder))
-    xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
+            
+        add_item(title, parameters)
     xbmcplugin.endOfDirectory(_handle)
 
 
 def list_games(service, game_status):
-    listing = []
+    items = []
     games = espn.get_games(service)
 
     for game in games:
@@ -98,31 +88,29 @@ def list_games(service, game_status):
         datetime_obj = datetime(*(time.strptime(game['game_date_local'], date_time_format)[0:6]))
         if game['game_status'] == game_status:
             title = '%s (%s)' % (game['name'], datetime_obj.strftime('%Y-%m-%d %H:%M'))
-            listitem = xbmcgui.ListItem(label=title)
-            listitem.setProperty('IsPlayable', 'true')
-            set_art(listitem, game['game_image'].split('.jpg')[0] + '.jpg')
+            game_image = game['game_image'].split('.jpg')[0] + '.jpg'
             parameters = {'action': 'play_video', 'airringId': game['airring_id']}
-            recursive_url = _url + '?' + urllib.urlencode(parameters)
-            is_folder = False
-            listing.append((recursive_url, listitem, is_folder))
-    xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
+            
+            art = {
+                'thumb': game_image,
+                'fanart': game_image,
+                'cover': game_image,
+            }
+        
+            items = add_item(title, parameters, items=items, playable=True, set_art=art)
+    xbmcplugin.addDirectoryItems(_handle, items, len(items))
     xbmcplugin.endOfDirectory(_handle)
 
 
 def list_channels(service):
-    listing = []
     channels = espn.get_channels(service)
 
     for name, id in channels.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'true')
-        listitem.setArt(
-            {'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % id})
+        art = {'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % id}
         parameters = {'action': 'play_channel', 'airringId': '0', 'channel': id}
-        recursive_url = _url + '?' + urllib.urlencode(parameters)
-        is_folder = False
-        listing.append((recursive_url, listitem, is_folder))
-    xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
+        add_item(name, parameters, playable=True, set_art=art)
     xbmcplugin.endOfDirectory(_handle)
 
 
@@ -179,21 +167,33 @@ def select_bitrate(manifest_bitrates=None):
     else:
         return ask_bitrate(manifest_bitrates)
 
-
-def set_art(listitem, game_image=None):
-    if game_image:
-        art = {
-            'thumb': game_image,
-            'fanart': game_image,
-            'cover': game_image,
-        }
-        listitem.setArt(art)
+    
+def add_item(title, parameters, items=False, folder=True, playable=False, set_info=False, set_art=False,
+             watched=False, set_content=False):
+    listitem = xbmcgui.ListItem(label=title)
+    if playable:
+        listitem.setProperty('IsPlayable', 'true')
+        folder = False
+    if set_art:
+        listitem.setArt(set_art)
     else:
-        art = {
-            'icon': os.path.join(addon_path, 'icon.png'),
-            'fanart': os.path.join(addon_path, 'fanart.jpg')
-        }
-    listitem.setArt(art)
+        listitem.setArt({'icon': os.path.join(addon_path, 'icon.png')})
+        listitem.setArt({'fanart': os.path.join(addon_path, 'fanart.jpg')})
+    if set_info:
+        listitem.setInfo('video', set_info)
+    if not watched:
+        listitem.addStreamInfo('video', {'duration': 0})
+    if set_content:
+        xbmcplugin.setContent(_handle, set_content)
+
+    listitem.setContentLookup(False)  # allows sending custom headers/cookies to ffmpeg
+    recursive_url = _url + '?' + urllib.urlencode(parameters)
+
+    if items is False:
+        xbmcplugin.addDirectoryItem(_handle, recursive_url, listitem, folder)
+    else:
+        items.append((recursive_url, listitem, folder))
+        return items
 
 
 def router(paramstring):
@@ -210,8 +210,8 @@ def router(paramstring):
             play_video(params['airringId'])
         elif params['action'] == 'play_channel':
             play_video(params['airringId'], params['channel'])
+            
     else:
-
         try:
             espn.login(username, password)
             services_menu()
