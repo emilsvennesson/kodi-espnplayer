@@ -175,11 +175,12 @@ def coloring(text, meaning):
 def list_channels(service):
     channels = espn.get_channels(service)
 
-    for name, id in channels.items():
+    for name, channel_id in channels.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'true')
-        art = {'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % id}
-        parameters = {'action': 'play_channel', 'airringId': '0', 'channel': id}
+        art = {
+            'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % channel_id}
+        parameters = {'action': 'play_channel', 'airringId': '0', 'channel': channel_id}
         add_item(name, parameters, playable=True, set_art=art)
     xbmcplugin.endOfDirectory(_handle)
 
