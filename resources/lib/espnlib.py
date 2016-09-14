@@ -152,7 +152,7 @@ class espnlib(object):
 
         games_data = self.make_request(url=url, method='get', payload=payload)
         games = json.loads(games_data)['games']
-        
+
         if filter_date:
             dgames = []
             for game in games:
@@ -160,7 +160,7 @@ class espnlib(object):
                 if str(filter_date) == str(gamedate):
                     dgames.append(game)
             games = dgames
-               
+
         if filter_games:
             fgames = []
             for game in games:
@@ -168,7 +168,7 @@ class espnlib(object):
                 if filter_games == game_status:
                     fgames.append(game)
             games = fgames
-                      
+
         return games
 
     def get_pkan(self, airingId):
@@ -230,7 +230,7 @@ class espnlib(object):
                 self.log('Invalid manifest URL found: %s' % stream_url['manifest'])
 
         return stream_url
-        
+
     def parse_m3u8_manifest(self, manifest_url, auth_cookie=None):
         """Return the stream URL along with its bitrate."""
         streams = {}
@@ -267,12 +267,12 @@ class espnlib(object):
             channels[channel_name] = channel_id
 
         return channels
-        
+
     def get_gamedates(self, service, filter=False):
         dates = []
         now = datetime.now()
         games = self.get_games(service)
-        
+
         for game in games:
             gamedate = self.parse_datetime(game['game_date_GMT'], localize=True).date()
             if gamedate not in dates:
@@ -284,7 +284,7 @@ class espnlib(object):
                         dates.append(gamedate)
                 else:
                     dates.append(gamedate)
-                    
+
         return dates
 
     def utc_to_local(self, utc_dt):

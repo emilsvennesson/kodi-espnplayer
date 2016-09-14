@@ -70,17 +70,17 @@ def main_menu(service):
             parameters = {'action': 'list_channels', 'service': service}
         else:
             parameters = {'action': 'list_dates', 'service': service, 'day': item}
-            
+
         add_item(item.title(), parameters)
     xbmcplugin.endOfDirectory(_handle)
-    
-    
+
+
 def list_today(service):
     now = datetime.now()
     date_today = now.date()
     abc = []
     items = ['live', 'upcoming', 'archive']
-    
+
     for item in items:
         if item == 'live':
             parameters = {'action': 'list_games', 'filter_games': 'inplay', 'service': service, 'filter_date': 'false'}
@@ -89,7 +89,7 @@ def list_today(service):
         add_item(item.title(), parameters, items=abc)
     xbmcplugin.addDirectoryItems(_handle, abc, len(abc))
     xbmcplugin.endOfDirectory(_handle)
-    
+
 
 def list_dates(service, day):
     dates = espn.get_gamedates(service, day)
@@ -106,7 +106,7 @@ def list_games(service, filter_date, filter_games):
         filter_date = False
     if filter_games == 'false':
         filter_games = False
-        
+
     games = espn.get_games(service, filter_date=filter_date, filter_games=filter_games)
 
     for game in games:
@@ -115,7 +115,7 @@ def list_games(service, filter_date, filter_games):
         time = game_datetime.strftime('%H:%M')
         time_and_date = game_datetime.strftime('%Y-%m-%d %H:%M')
         category = game['sportCode']
-        
+
         try:
             home_team = '%s %s' % (game['home_city'], game['home_name'])
             away_team = '%s %s' % (game['away_city'], game['away_name'])
@@ -126,41 +126,42 @@ def list_games(service, filter_date, filter_games):
                 away_team = teampattern.group(1)
             else:
                 team_names = False
-                
+
         if game['game_status'] == 'upcoming':
             playable = False
             parameters = {'action': 'null'}
         else:
             playable = True
             parameters = {'action': 'play_video', 'airringId': game['airring_id']}
-                
+
         if team_names:
             title = '[B]%s[/B] vs. [B]%s[/B]' % (away_team, home_team)
             list_title = '%s: [B]%s[/B] vs. [B]%s[/B] %s' % (coloring(category, 'cat'), away_team, home_team, coloring(time, 'time'))
-            
+
         else:
             title = '[B]%s[/B]' % game['name']
             list_title = '%s [B]%s[/B] %s' % (coloring(category, 'cat'), game['name'], coloring(time, 'time'))
-            
+
         game_image = game['game_image'].split('.jpg')[0] + '.jpg'
-            
+
         art = {
             'thumb': game_image,
             'fanart': game_image,
             'cover': game_image,
         }
-        
+
         info = {
             'title': title,
             'genre': category,
             'plot': game['name']
         }
-        
-        items = add_item(list_title, parameters, items=items, playable=playable, folder=False, set_art=art, set_info=info)
+
+        items = add_item(list_title, parameters, items=items, playable=playable, folder=False, set_art=art,
+                         set_info=info)
     xbmcplugin.addDirectoryItems(_handle, items, len(items))
     xbmcplugin.endOfDirectory(_handle)
 
-    
+
 def coloring(text, meaning):
     """Return the text wrapped in appropriate color markup."""
     if meaning == 'cat':
@@ -236,7 +237,7 @@ def select_bitrate(manifest_bitrates=None):
     else:
         return ask_bitrate(manifest_bitrates)
 
-    
+
 def add_item(title, parameters, items=False, folder=True, playable=False, set_info=False, set_art=False,
              watched=False, set_content=False):
     listitem = xbmcgui.ListItem(label=title)
@@ -284,7 +285,7 @@ def router(paramstring):
             list_dates(params['service'], params['day'])
         elif params['action'] == 'list_today':
             list_today(params['service'])
-            
+
     else:
         try:
             espn.login(username, password)
