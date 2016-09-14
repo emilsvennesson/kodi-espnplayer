@@ -13,8 +13,7 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <description lang="en">Watch content from ESPN Player.</description>
-    <description lang="sv">Titta på innehåll från ESPN Player.</description>
+    <description lang="en">Watch content from ESPN Player's NCAA College Pass, Indycar Series and ESPN Select.</description>
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
     <source>https://github.com/emilsvennesson/kodi-espnplayer</source>
