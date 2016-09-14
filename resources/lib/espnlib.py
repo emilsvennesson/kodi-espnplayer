@@ -143,6 +143,7 @@ class espnlib(object):
         return services
 
     def get_games(self, service, filter_date=False, filter_games=False, category='all'):
+        """Return games in a list. Ability to sort games by date/game status."""
         url = self.servlets_url + '/games'
         payload = {
             'product': service,
@@ -172,6 +173,7 @@ class espnlib(object):
         return games
 
     def get_pkan(self, airingId):
+        """Return a 'pkan' token needed to request a stream URL."""
         url = 'http://neulion.go.com/espngeo/dgetpkan'
         payload = {
             'airingId': airingId
@@ -180,6 +182,7 @@ class espnlib(object):
         return pkan
 
     def get_stream_url(self, airingId, channel='espn3'):
+        """Return the URL for a stream. _mediaAuth cookie is needed for decryption."""
         stream_url = {}
         auth_cookie = None
         url = 'http://neulion.go.com/espngeo/startSession'
@@ -252,6 +255,7 @@ class espnlib(object):
         return streams
 
     def get_channels(self, service):
+        """Return a dict with available channels for NCAA College Pass."""
         channels = {}
         url = self.servlets_url + '/channels'
         payload = {
@@ -269,6 +273,7 @@ class espnlib(object):
         return channels
 
     def get_gamedates(self, service, filter=False):
+        """Return a list with dates containing at least one game."""
         dates = []
         now = datetime.now()
         games = self.get_games(service)
@@ -288,6 +293,7 @@ class espnlib(object):
         return dates
 
     def utc_to_local(self, utc_dt):
+        """Convert UTC time to local time."""
         # get integer timestamp to avoid precision lost
         timestamp = calendar.timegm(utc_dt.timetuple())
         local_dt = datetime.fromtimestamp(timestamp)

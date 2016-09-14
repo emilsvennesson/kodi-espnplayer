@@ -43,7 +43,7 @@ espn = espnlib(cookie_file, debug)
 
 def addon_log(string):
     if debug:
-        xbmc.log("%s: %s" % (logging_prefix, string))
+        xbmc.log('%s: %s' % (logging_prefix, string))
 
 
 def services_menu():
@@ -120,6 +120,7 @@ def list_games(service, filter_date, filter_games):
             home_team = '%s %s' % (game['home_city'], game['home_name'])
             away_team = '%s %s' % (game['away_city'], game['away_name'])
         except KeyError:
+            #  try to extract team names from full title
             teampattern = re.search(r'(.+)( vs. )(.+)( \()', game['name'])
             if teampattern:
                 home_team = teampattern.group(3)
@@ -165,7 +166,7 @@ def list_games(service, filter_date, filter_games):
 def coloring(text, meaning):
     """Return the text wrapped in appropriate color markup."""
     if meaning == 'cat':
-        color = "FF0DF214"
+        color = 'FF0DF214'
     elif meaning == 'time':
         color = 'FFF16C00'
     colored_text = '[COLOR=%s]%s[/COLOR]' % (color, text)
@@ -173,6 +174,7 @@ def coloring(text, meaning):
 
 
 def list_channels(service):
+    """List all channels from the returned dict."""
     channels = espn.get_channels(service)
 
     for name, channel_id in channels.items():
@@ -180,6 +182,7 @@ def list_channels(service):
         listitem.setProperty('IsPlayable', 'true')
         art = {
             'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % channel_id}
+        #  airringId is 0 for live channels
         parameters = {'action': 'play_channel', 'airringId': '0', 'channel': channel_id}
         add_item(name, parameters, playable=True, set_art=art)
     xbmcplugin.endOfDirectory(_handle)
