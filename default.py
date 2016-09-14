@@ -6,6 +6,7 @@ import sys
 import os
 import urllib
 import urlparse
+from datetime import datetime
 
 from resources.lib.espnlib import espnlib
 
@@ -59,42 +60,68 @@ def services_menu():
 
 def main_menu(service):
     listing = []
-    items = ['live', 'upcoming', 'archive', 'channels']
+    items = ['today', 'upcoming', 'archive', 'channels']
 
     for item in items:
-        if item == 'live':
-            game_status = 'inplay'
-        else:
-            game_status = item
-
-        title = item.title()
-        if item == 'channels':
+        if item == 'today':
+            parameters = {'action': 'list_today', 'service': service}
+        elif item == 'channels':
             parameters = {'action': 'list_channels', 'service': service}
         else:
-            parameters = {'action': 'list_games', 'service': service, 'game_status': game_status}
+            parameters = {'action': 'list_dates', 'service': service, 'day': item}
             
+        add_item(item.title(), parameters)
+    xbmcplugin.endOfDirectory(_handle)
+    
+    
+def list_today(service):
+    now = datetime.now()
+    date_today = now.date()
+    abc = []
+    items = ['live', 'upcoming', 'archive']
+    
+    for item in items:
+        if item == 'live':
+            parameters = {'action': 'list_games', 'filter_games': 'inplay', 'service': service, 'filter_date': 'false'}
+        else:
+            parameters = {'action': 'list_games', 'service': service, 'filter_date': date_today, 'filter_games': item}
+        add_item(item.title(), parameters, items=abc)
+    xbmcplugin.addDirectoryItems(_handle, abc, len(abc))
+    xbmcplugin.endOfDirectory(_handle)
+    
+
+def list_dates(service, day):
+    dates = espn.get_gamedates(service, day)
+    for date in dates:
+        title = date.strftime('%Y-%m-%d')
+        parameters = {'action': 'list_games', 'service': service, 'filter_date': date, 'filter_games': 'false'}
         add_item(title, parameters)
     xbmcplugin.endOfDirectory(_handle)
 
 
-def list_games(service, game_status):
+def list_games(service, filter_date, filter_games):
     items = []
-    games = espn.get_games(service)
+
+    if filter_date == 'false':
+        filter_date = False
+    if filter_games == 'false':
+        filter_games = False
+        
+    games = espn.get_games(service, filter_date=filter_date, filter_games=filter_games)
 
     for game in games:
         game_date = espn.parse_datetime(game['game_date_GMT'], localize=True)
-        if game['game_status'] == game_status:
-            title = '%s (%s)' % (game['name'], game_date.strftime('%Y-%m-%d %H:%M'))
-            game_image = game['game_image'].split('.jpg')[0] + '.jpg'
-            parameters = {'action': 'play_video', 'airringId': game['airring_id']}
+        title = '%s (%s)' % (game['name'], game_date.strftime('%Y-%m-%d %H:%M'))
+        game_image = game['game_image'].split('.jpg')[0] + '.jpg'
+        parameters = {'action': 'play_video', 'airringId': game['airring_id']}
             
-            art = {
-                'thumb': game_image,
-                'fanart': game_image,
-                'cover': game_image,
-            }
+        art = {
+            'thumb': game_image,
+            'fanart': game_image,
+            'cover': game_image,
+        }
         
-            items = add_item(title, parameters, items=items, playable=True, set_art=art)
+        items = add_item(title, parameters, items=items, playable=True, set_art=art)
     xbmcplugin.addDirectoryItems(_handle, items, len(items))
     xbmcplugin.endOfDirectory(_handle)
 
@@ -202,11 +229,16 @@ def router(paramstring):
         elif params['action'] == 'list_channels':
             list_channels(params['service'])
         elif params['action'] == 'list_games':
-            list_games(params['service'], params['game_status'])
+            list_games(params['service'], params['filter_date'], params['filter_games'])
+            addon_log(params)
         elif params['action'] == 'play_video':
             play_video(params['airringId'])
         elif params['action'] == 'play_channel':
             play_video(params['airringId'], params['channel'])
+        elif params['action'] == 'list_dates':
+            list_dates(params['service'], params['day'])
+        elif params['action'] == 'list_today':
+            list_today(params['service'])
             
     else:
         try:

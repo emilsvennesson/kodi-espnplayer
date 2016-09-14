@@ -51,7 +51,6 @@ class espnlib(object):
     def make_request(self, url, method, payload=None, headers=None, return_req=False):
         """Make an http request. Return the response."""
         self.log('Request URL: %s' % url)
-        self.log('Headers: %s' % headers)
 
         try:
             if method == 'get':
@@ -143,7 +142,7 @@ class espnlib(object):
 
         return services
 
-    def get_games(self, service, category='all'):
+    def get_games(self, service, filter_date=False, filter_games=False, category='all'):
         url = self.servlets_url + '/games'
         payload = {
             'product': service,
@@ -151,10 +150,25 @@ class espnlib(object):
             'format': 'json'
         }
 
-        game_data = self.make_request(url=url, method='get', payload=payload)
-        game_dict = json.loads(game_data)
-        games = game_dict['games']
-
+        games_data = self.make_request(url=url, method='get', payload=payload)
+        games = json.loads(games_data)['games']
+        
+        if filter_date:
+            dgames = []
+            for game in games:
+                gamedate = self.parse_datetime(game['game_date_GMT'], localize=True).date()
+                if str(filter_date) == str(gamedate):
+                    dgames.append(game)
+            games = dgames
+               
+        if filter_games:
+            fgames = []
+            for game in games:
+                game_status = game['game_status']
+                if filter_games == game_status:
+                    fgames.append(game)
+            games = fgames
+                      
         return games
 
     def get_pkan(self, airingId):
@@ -252,7 +266,26 @@ class espnlib(object):
             channel_id = channel['id']
             channels[channel_name] = channel_id
 
-        return channels      
+        return channels
+        
+    def get_gamedates(self, service, filter=False):
+        dates = []
+        now = datetime.now()
+        games = self.get_games(service)
+        
+        for game in games:
+            gamedate = self.parse_datetime(game['game_date_GMT'], localize=True).date()
+            if gamedate not in dates:
+                if filter == 'upcoming':
+                    if gamedate > now.date():
+                        dates.append(gamedate)
+                elif filter == 'archive':
+                    if gamedate < now.date():
+                        dates.append(gamedate)
+                else:
+                    dates.append(gamedate)
+                    
+        return dates
 
     def utc_to_local(self, utc_dt):
         # get integer timestamp to avoid precision lost
