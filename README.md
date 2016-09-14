@@ -12,3 +12,11 @@ If you're interested in helping out with the development, then please just send 
  
 
 This plugin supports Kodi Jarvis or later. While it may work fine on older versions as well, it is unsupported and you're encouraged to upgrade.
+
+# Features: #
+ * NCAA College Pass
+ * IndyCar Series (untested)
+ * ESPN Select (untested)
+ * Live games
+ * Archived games
+ * Live channels (ESPNU, SEC Network and Longhorn Network)
