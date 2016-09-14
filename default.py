@@ -37,8 +37,13 @@ if addon.getSetting('debug') == 'false':
     debug = False
 else:
     debug = True
+    
+if addon.getSetting('verify_ssl') == 'false':
+    verify_ssl = False
+else:
+    verify_ssl = True
 
-espn = espnlib(cookie_file, debug)
+espn = espnlib(cookie_file, debug, verify_ssl)
 
 
 def addon_log(string):

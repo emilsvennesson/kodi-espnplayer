@@ -16,8 +16,9 @@ import xmltodict
 
 
 class espnlib(object):
-    def __init__(self, cookie_file, debug=False):
+    def __init__(self, cookie_file, debug=False, verify_ssl=True):
         self.debug = debug
+        self.verify_ssl = verify_ssl
         self.base_url = 'https://espnplayer.com/espnplayer'
         self.servlets_url = self.base_url + '/servlets'
         self.simpleconsole_url = self.servlets_url + '/simpleconsole'
@@ -54,9 +55,9 @@ class espnlib(object):
 
         try:
             if method == 'get':
-                req = self.http_session.get(url, params=payload, headers=headers, allow_redirects=False, verify=False)
+                req = self.http_session.get(url, params=payload, headers=headers, allow_redirects=False, verify=self.verify_ssl)
             else:  # post
-                req = self.http_session.post(url, data=payload, headers=headers, allow_redirects=False, verify=False)
+                req = self.http_session.post(url, data=payload, headers=headers, allow_redirects=False, verify=self.verify_ssl)
             req.raise_for_status()
             self.log('Response code: %s' % req.status_code)
             self.log('Response: %s' % req.content)
