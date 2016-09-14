@@ -6,6 +6,7 @@ import sys
 import os
 import urllib
 import urlparse
+import re
 from datetime import datetime
 
 from resources.lib.espnlib import espnlib
@@ -101,7 +102,6 @@ def list_dates(service, day):
 
 def list_games(service, filter_date, filter_games):
     items = []
-
     if filter_date == 'false':
         filter_date = False
     if filter_games == 'false':
@@ -110,8 +110,28 @@ def list_games(service, filter_date, filter_games):
     games = espn.get_games(service, filter_date=filter_date, filter_games=filter_games)
 
     for game in games:
-        game_date = espn.parse_datetime(game['game_date_GMT'], localize=True)
-        title = '%s (%s)' % (game['name'], game_date.strftime('%Y-%m-%d %H:%M'))
+        team_names = True
+        game_datetime = espn.parse_datetime(game['game_date_GMT'], localize=True)
+        time = coloring(game_datetime.strftime('%H:%M'), 'game_time')
+        time_and_date = coloring(game_datetime.strftime('%Y-%m-%d %H:%M'), 'game_time')
+        category = coloring(game['sportCode'], 'category')
+        
+        try:
+            home_team = '%s %s' % (game['home_city'], game['home_name'])
+            away_team = '%s %s' % (game['away_city'], game['away_name'])
+        except KeyError:
+            teampattern = re.search(r'(.+)( vs. )(.+)( \()', game['name'])
+            if teampattern:
+                home_team = teampattern.group(3)
+                away_team = teampattern.group(1)
+            else:
+                team_names = False
+                
+        if team_names:       
+            title = '%s: [B]%s[/B] vs. [B]%s[/B] %s' % (category, away_team, home_team, time)
+        else:
+            title = '%s [B]%s[/B] %s' % (category, game['name'], time)
+            
         game_image = game['game_image'].split('.jpg')[0] + '.jpg'
         parameters = {'action': 'play_video', 'airringId': game['airring_id']}
             
@@ -124,6 +144,16 @@ def list_games(service, filter_date, filter_games):
         items = add_item(title, parameters, items=items, playable=True, set_art=art)
     xbmcplugin.addDirectoryItems(_handle, items, len(items))
     xbmcplugin.endOfDirectory(_handle)
+
+    
+def coloring(text, meaning):
+    """Return the text wrapped in appropriate color markup."""
+    if meaning == 'category':
+        color = "FF0DF214"
+    elif meaning == 'game_time':
+        color = 'FFF16C00'
+    colored_text = '[COLOR=%s]%s[/COLOR]' % (color, text)
+    return colored_text
 
 
 def list_channels(service):
