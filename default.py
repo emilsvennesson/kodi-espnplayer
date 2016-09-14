@@ -112,9 +112,9 @@ def list_games(service, filter_date, filter_games):
     for game in games:
         team_names = True
         game_datetime = espn.parse_datetime(game['game_date_GMT'], localize=True)
-        time = coloring(game_datetime.strftime('%H:%M'), 'game_time')
-        time_and_date = coloring(game_datetime.strftime('%Y-%m-%d %H:%M'), 'game_time')
-        category = coloring(game['sportCode'], 'category')
+        time = game_datetime.strftime('%H:%M')
+        time_and_date = game_datetime.strftime('%Y-%m-%d %H:%M')
+        category = game['sportCode']
         
         try:
             home_team = '%s %s' % (game['home_city'], game['home_name'])
@@ -127,13 +127,22 @@ def list_games(service, filter_date, filter_games):
             else:
                 team_names = False
                 
-        if team_names:       
-            title = '%s: [B]%s[/B] vs. [B]%s[/B] %s' % (category, away_team, home_team, time)
+        if game['game_status'] == 'upcoming':
+            playable = False
+            parameters = {'action': 'null'}
         else:
-            title = '%s [B]%s[/B] %s' % (category, game['name'], time)
+            playable = True
+            parameters = {'action': 'play_video', 'airringId': game['airring_id']}
+                
+        if team_names:
+            title = '[B]%s[/B] vs. [B]%s[/B]' % (away_team, home_team)
+            list_title = '%s: [B]%s[/B] vs. [B]%s[/B] %s' % (coloring(category, 'cat'), away_team, home_team, coloring(time, 'time'))
+            
+        else:
+            title = '[B]%s[/B]' % game['name']
+            list_title = '%s [B]%s[/B] %s' % (coloring(category, 'cat'), game['name'], coloring(time, 'time'))
             
         game_image = game['game_image'].split('.jpg')[0] + '.jpg'
-        parameters = {'action': 'play_video', 'airringId': game['airring_id']}
             
         art = {
             'thumb': game_image,
@@ -141,16 +150,22 @@ def list_games(service, filter_date, filter_games):
             'cover': game_image,
         }
         
-        items = add_item(title, parameters, items=items, playable=True, set_art=art)
+        info = {
+            'title': title,
+            'genre': category,
+            'plot': game['name']
+        }
+        
+        items = add_item(list_title, parameters, items=items, playable=playable, folder=False, set_art=art, set_info=info)
     xbmcplugin.addDirectoryItems(_handle, items, len(items))
     xbmcplugin.endOfDirectory(_handle)
 
     
 def coloring(text, meaning):
     """Return the text wrapped in appropriate color markup."""
-    if meaning == 'category':
+    if meaning == 'cat':
         color = "FF0DF214"
-    elif meaning == 'game_time':
+    elif meaning == 'time':
         color = 'FFF16C00'
     colored_text = '[COLOR=%s]%s[/COLOR]' % (color, text)
     return colored_text
