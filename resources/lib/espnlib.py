@@ -5,6 +5,9 @@ A Kodi-agnostic library for ESPN Player
 import json
 import codecs
 import cookielib
+import calendar
+from datetime import datetime, timedelta
+import time
 from urllib import urlencode
 
 import requests
@@ -249,4 +252,19 @@ class espnlib(object):
             channel_id = channel['id']
             channels[channel_name] = channel_id
 
-        return channels
+        return channels      
+
+    def utc_to_local(self, utc_dt):
+        # get integer timestamp to avoid precision lost
+        timestamp = calendar.timegm(utc_dt.timetuple())
+        local_dt = datetime.fromtimestamp(timestamp)
+        assert utc_dt.resolution >= timedelta(microseconds=1)
+        return local_dt.replace(microsecond=utc_dt.microsecond)
+
+    def parse_datetime(self, game_date, localize=False):
+        """Parse ESPN Player date string to datetime object."""
+        date_time_format = '%Y-%m-%dT%H:%M:%S.000'
+        datetime_obj = datetime(*(time.strptime(game_date, date_time_format)[0:6]))
+        if localize:
+            datetime_obj = self.utc_to_local(datetime_obj)
+        return datetime_obj

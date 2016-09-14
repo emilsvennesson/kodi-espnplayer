@@ -6,8 +6,6 @@ import sys
 import os
 import urllib
 import urlparse
-import time
-from datetime import datetime
 
 from resources.lib.espnlib import espnlib
 
@@ -84,10 +82,9 @@ def list_games(service, game_status):
     games = espn.get_games(service)
 
     for game in games:
-        date_time_format = '%Y-%m-%dT%H:%M:%S'
-        datetime_obj = datetime(*(time.strptime(game['game_date_local'], date_time_format)[0:6]))
+        game_date = espn.parse_datetime(game['game_date_GMT'], localize=True)
         if game['game_status'] == game_status:
-            title = '%s (%s)' % (game['name'], datetime_obj.strftime('%Y-%m-%d %H:%M'))
+            title = '%s (%s)' % (game['name'], game_date.strftime('%Y-%m-%d %H:%M'))
             game_image = game['game_image'].split('.jpg')[0] + '.jpg'
             parameters = {'action': 'play_video', 'airringId': game['airring_id']}
             
