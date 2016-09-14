@@ -83,7 +83,6 @@ def main_menu(service):
 def list_today(service):
     now = datetime.now()
     date_today = now.date()
-    abc = []
     items = ['live', 'upcoming', 'archive']
 
     for item in items:
@@ -91,8 +90,7 @@ def list_today(service):
             parameters = {'action': 'list_games', 'filter_games': 'inplay', 'service': service, 'filter_date': 'false'}
         else:
             parameters = {'action': 'list_games', 'service': service, 'filter_date': date_today, 'filter_games': item}
-        add_item(item.title(), parameters, items=abc)
-    xbmcplugin.addDirectoryItems(_handle, abc, len(abc))
+        add_item(item.title(), parameters)
     xbmcplugin.endOfDirectory(_handle)
 
 
