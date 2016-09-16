@@ -140,11 +140,11 @@ def list_games(service, filter_date, filter_games):
 
         if team_names:
             title = '[B]%s[/B] vs. [B]%s[/B]' % (away_team, home_team)
-            list_title = '%s: [B]%s[/B] vs. [B]%s[/B] %s' % (coloring(category, 'cat'), away_team, home_team, coloring(time, 'time'))
+            list_title = '[B]%s[/B] %s: [B]%s[/B] vs. [B]%s[/B]' % (coloring(time, 'time'), coloring(category, 'cat'), away_team, home_team)
 
         else:
             title = '[B]%s[/B]' % game['name']
-            list_title = '%s [B]%s[/B] %s' % (coloring(category, 'cat'), game['name'], coloring(time, 'time'))
+            list_title = '[B]%s[/B] %s: [B]%s[/B]' % (coloring(time, 'time'), coloring(category, 'cat'), game['name'])
 
         game_image = game['game_image'].split('.jpg')[0] + '.jpg'
 
