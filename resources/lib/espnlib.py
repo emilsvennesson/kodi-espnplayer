@@ -50,14 +50,15 @@ class espnlib(object):
                 pass
 
     def make_request(self, url, method, payload=None, headers=None, return_req=False):
-        """Make an http request. Return the response."""
+        """Make an HTTP request. Return the response."""
         self.log('Request URL: %s' % url)
-
         try:
             if method == 'get':
-                req = self.http_session.get(url, params=payload, headers=headers, allow_redirects=False, verify=self.verify_ssl)
+                req = self.http_session.get(url, params=payload, headers=headers, allow_redirects=False,
+                                            verify=self.verify_ssl)
             else:  # post
-                req = self.http_session.post(url, data=payload, headers=headers, allow_redirects=False, verify=self.verify_ssl)
+                req = self.http_session.post(url, data=payload, headers=headers, allow_redirects=False,
+                                             verify=self.verify_ssl)
             req.raise_for_status()
             self.log('Response code: %s' % req.status_code)
             self.log('Response: %s' % req.content)
@@ -243,8 +244,8 @@ class espnlib(object):
         self.log('HLS manifest: \n %s' % m3u8_manifest)
 
         m3u8_header = {'Cookie': auth_cookie}
-
         m3u8_obj = m3u8.loads(m3u8_manifest)
+
         for playlist in m3u8_obj.playlists:
             bitrate = int(playlist.stream_info.bandwidth) / 1000
             if playlist.uri.startswith('http'):

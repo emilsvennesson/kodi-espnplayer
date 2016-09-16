@@ -37,7 +37,7 @@ if addon.getSetting('debug') == 'false':
     debug = False
 else:
     debug = True
-    
+
 if addon.getSetting('verify_ssl') == 'false':
     verify_ssl = False
 else:
@@ -96,9 +96,10 @@ def list_today(service):
             if item == language(30016):
                 game_type = 'upcoming'
             else:
-                game_type = 'archive'   
-            parameters = {'action': 'list_games', 'service': service, 'filter_date': date_today, 'filter_games': game_type}
-            
+                game_type = 'archive'
+            parameters = {'action': 'list_games', 'service': service, 'filter_date': date_today,
+                          'filter_games': game_type}
+
         add_item(item, parameters)
     xbmcplugin.endOfDirectory(_handle)
 
@@ -132,7 +133,7 @@ def list_games(service, filter_date, filter_games):
             home_team = '%s %s' % (game['home_city'], game['home_name'])
             away_team = '%s %s' % (game['away_city'], game['away_name'])
         except KeyError:
-            #  try to extract team names from full title
+            # try to extract team names from full title
             teampattern = re.search(r'(.+)( vs. )(.+)( \()', game['name'])
             if teampattern:
                 home_team = teampattern.group(3)
@@ -192,9 +193,8 @@ def list_channels(service):
     for name, channel_id in channels.items():
         listitem = xbmcgui.ListItem(label=name)
         listitem.setProperty('IsPlayable', 'true')
-        art = {
-            'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % channel_id}
-        #  airringId is 0 for live channels
+        art = {'thumb': 'http://a.espncdn.com/prod/assets/watchespn/appletv/images/channels-carousel/%s.png' % channel_id}
+        # airringId is 0 for live channels
         parameters = {'action': 'play_channel', 'airringId': '0', 'channel': channel_id}
         add_item(name, parameters, playable=True, set_art=art)
     xbmcplugin.endOfDirectory(_handle)
