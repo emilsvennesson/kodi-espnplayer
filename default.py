@@ -66,31 +66,40 @@ def services_menu():
 
 def main_menu(service):
     listing = []
-    items = ['today', 'upcoming', 'archive', 'channels']
+    items = [language(30018), language(30016), language(30017), language(30019)]
 
     for item in items:
-        if item == 'today':
+        if item == language(30018):
             parameters = {'action': 'list_today', 'service': service}
-        elif item == 'channels':
+        elif item == language(30019):
             parameters = {'action': 'list_channels', 'service': service}
         else:
-            parameters = {'action': 'list_dates', 'service': service, 'day': item}
+            if item == language(30016):
+                day = 'upcoming'
+            else:
+                day = 'archive'
+            parameters = {'action': 'list_dates', 'service': service, 'day': day}
 
-        add_item(item.title(), parameters)
+        add_item(item, parameters)
     xbmcplugin.endOfDirectory(_handle)
 
 
 def list_today(service):
     now = datetime.now()
     date_today = now.date()
-    items = ['live', 'upcoming', 'archive']
+    items = [language(30015), language(30016), language(30017)]
 
     for item in items:
-        if item == 'live':
+        if item == language(30015):
             parameters = {'action': 'list_games', 'filter_games': 'inplay', 'service': service, 'filter_date': 'false'}
         else:
-            parameters = {'action': 'list_games', 'service': service, 'filter_date': date_today, 'filter_games': item}
-        add_item(item.title(), parameters)
+            if item == language(30016):
+                game_type = 'upcoming'
+            else:
+                game_type = 'archive'   
+            parameters = {'action': 'list_games', 'service': service, 'filter_date': date_today, 'filter_games': game_type}
+            
+        add_item(item, parameters)
     xbmcplugin.endOfDirectory(_handle)
 
 

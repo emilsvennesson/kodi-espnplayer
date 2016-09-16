@@ -68,3 +68,23 @@ msgstr ""
 msgctxt "#30014"
 msgid "Verify SSL certificate"
 msgstr ""
+
+msgctxt "#30015"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Upcoming"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Archive"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Today"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Channels"
+msgstr ""
