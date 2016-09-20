@@ -19,6 +19,7 @@
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
     <source>https://github.com/emilsvennesson/kodi-espnplayer</source>
+    <forum>http://forum.kodi.tv/showthread.php?tid=291607</forum>
     <disclaimer>This addon requires you to have a subscription to ESPN Player.[CR]This addon is completely unofficial and is not endorsed by ESPN in any way.</disclaimer>
   </extension>
 </addon>
