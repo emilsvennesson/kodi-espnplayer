@@ -88,3 +88,11 @@ msgstr ""
 msgctxt "#30019"
 msgid "Channels"
 msgstr ""
+
+msgctxt "#30020"
+msgid "Information"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Please enter your credentials in the add-on settings."
+msgstr ""
