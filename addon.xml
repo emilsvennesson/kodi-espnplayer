@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.espn-player"
-       version="1.0.1"
+       version="1.0.2"
        name="ESPN Player"
        provider-name="emilsvennesson">
   <requires>
@@ -14,8 +14,8 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <description lang="en">Watch content from ESPN Player's NCAA College Pass, IndyCar Series and ESPN Select.</description>
-    <news>2016.09.14 v1.0.1
-    + Display game time first (easier to see when team names are long)</news>
+    <news>2016.09.14 v1.0.2
+    + Updated for the latest espnplayer site</news>
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
     <source>https://github.com/emilsvennesson/kodi-espnplayer</source>
