@@ -153,6 +153,10 @@ class espnlib(object):
     def get_games(self, service, filter_date=False, filter_games=False, category='all'):
         """Return games in a list. Ability to sort games by date/game status."""
         url = 'https://www.espnplayer.com/schedule'
+        filter_mask = { 0: 'upcoming',
+                        1: 'inplay',
+                        3: 'archive' 
+        }
         payload = {
            # 'product': service,
            # 'category': category,
@@ -171,13 +175,13 @@ class espnlib(object):
             games = dgames
 
 # Currently missing
-#        if filter_games:
-#            fgames = []
-#            for game in games:
-#                game_status = game['game_status']
-#                if filter_games == game_status:
-#                    fgames.append(game)
-#            games = fgames
+        if filter_games:
+            fgames = []
+            for game in games:
+                game_status = game['gameState']
+                if filter_games == filter_mask[game_status]:
+                    fgames.append(game)
+            games = fgames
 
         return games
     def get_token(self, airingId):
