@@ -167,7 +167,7 @@ class ESPNPlayer(object):
             'auth_timestamp': espntoken['timestamp'],
             'auth_token': espntoken['token'],
             'auth_usertrackname': espntoken['userTrackName'],
-            'simulcastAiringId': airing_id if chennel!='espn3' else 0
+            'simulcastAiringId': airing_id if channel!='espn3' else 0
         }
         req = self.make_request(url=url, method='post', payload=payload)
         stream_data = req.content
