@@ -125,7 +125,7 @@ class ESPNPlayer(object):
         return data
 
     def get_espntoken(self, airing_id):
-        """Return a token needed to request a pkan/stream"""
+        """Return a token needed to request a pkan"""
         url = 'https://www.espnplayer.com/secure/espntoken'
         payload = {
             'airingId': airing_id,
@@ -134,7 +134,7 @@ class ESPNPlayer(object):
         sc_data = self.make_request(url=url, method='post', payload=payload)
         return json.loads(sc_data)['data']
 
-    def get_pkan(self, token):
+    def get_pkan(self, airing_id, token):
         """Return a 'pkan' token needed to request a stream URL."""
         url = 'http://neulion.go.com/espngeo/dgetpkan'
         payload = {
@@ -158,7 +158,7 @@ class ESPNPlayer(object):
             'channel': channel,
             'playbackScenario': 'HTTP_CLOUD_WIRED',
             'playerId': 'neulion',
-            'pkan': self.get_pkan(espntoken),
+            'pkan': self.get_pkan(airing_id, espntoken),
             'pkanType': 'TOKEN',
             'tokenType': 'GATEKEEPER',
             'ttl': '480',
@@ -167,7 +167,7 @@ class ESPNPlayer(object):
             'auth_timestamp': espntoken['timestamp'],
             'auth_token': espntoken['token'],
             'auth_usertrackname': espntoken['userTrackName'],
-            'simulcastAiringId': airing_id if channel!='espn3' else 0
+            'simulcastAiringId': airing_id if chennel!='espn3' else 0
         }
         req = self.make_request(url=url, method='post', payload=payload)
         stream_data = req.content
