@@ -131,8 +131,8 @@ class ESPNPlayer(object):
             'airingId': airing_id,
             'format': 'json',
         }
-        sc_data = self.make_request(url=url, method='post', payload=payload)
-        return json.loads(sc_data)['data']
+        data = self.make_request(url=url, method='post', payload=payload)
+        return data['data']
 
     def get_pkan(self, airing_id, token):
         """Return a 'pkan' token needed to request a stream URL."""
