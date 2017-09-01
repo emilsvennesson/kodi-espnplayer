@@ -157,15 +157,20 @@ class espnlib(object):
                         1: 'inplay',
                         3: 'archive' 
         }
-        payload = {
-           # 'product': service,
-           # 'category': category,
-            'lid': service,
-            'format': 'json',
-        }
+        games = []
+        now = datetime.now()
+        for month in range(-1,1):
+            payload = {
+                # 'product': service,
+                # 'category': category,
+                'lid': service,
+                'format': 'json',
+                'ps': 300,
+                'monthly': "%d-%02d" % (now.year,(now.month+month))
+            }
+            games_data=self.make_request(url=url, method='get', payload=payload)
+            games+=json.loads(games_data)['games']
 
-        games_data = self.make_request(url=url, method='get', payload=payload)
-        games = json.loads(games_data)['games']
         if filter_date:
             dgames = []
             for game in games:
@@ -174,7 +179,6 @@ class espnlib(object):
                     dgames.append(game)
             games = dgames
 
-# Currently missing
         if filter_games:
             fgames = []
             for game in games:
@@ -219,22 +223,20 @@ class espnlib(object):
         token = self.get_token(airingId)
         url = 'https://neulion.go.com/espngeo/startSession'
         payload = {
-            'channel': airingId,
+            'channel': channel,
             'playbackScenario': 'HTTP_CLOUD_WIRED',
             'playerId': 'neulion',
             'pkan': self.get_pkan(token),
             'pkanType': 'TOKEN',
             'tokenType': 'GATEKEEPER',
             'ttl': '480',
-            'airingId': token['airingId'],
+            'airingId': airingId,
             'auth_airingid': token['airingId'],
             'auth_timestamp': token['timestamp'],
             'auth_token': token['token'],
             'auth_usertrackname': token['userTrackName'],
-            'simulcastAiringId': token['airingId']
+            'simulcastAiringId': airingId if channel=='espn3' else 0
         }
-        if channel != "espn3":
-            payload.update({'simulcastAiringId': 0})
         req = self.make_request(url=url, method='post', payload=payload, return_req=True)
         stream_data = req.content
         try:
