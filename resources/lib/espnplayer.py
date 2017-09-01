@@ -124,11 +124,26 @@ class ESPNPlayer(object):
         data = self.make_request(url, method='get', params=params)
         return data
 
-    def get_pkan(self, airing_id):
+    def get_espntoken(self, airing_id):
+        """Return a token needed to request a pkan"""
+        url = 'https://www.espnplayer.com/secure/espntoken'
+        payload = {
+            'airingId': airing_id,
+            'format': 'json',
+        }
+        data = self.make_request(url=url, method='post', payload=payload)
+        return data['data']
+
+    def get_pkan(self, airing_id, token):
         """Return a 'pkan' token needed to request a stream URL."""
         url = 'http://neulion.go.com/espngeo/dgetpkan'
         payload = {
-            'airingId': airing_id
+            'airingId': airing_id,
+            'auth_airingid': token['airingId'],
+            'auth_timestamp': token['timestamp'],
+            'auth_token': token['token'],
+            'auth_usertrackname': token['userTrackName'],
+            'isFlex': 'true'
         }
         pkan = self.make_request(url=url, method='get', payload=payload)
         return pkan
@@ -137,16 +152,22 @@ class ESPNPlayer(object):
         """Return the URL for a stream. _mediaAuth cookie is needed for decryption."""
         stream_url = {}
         auth_cookie = None
+        espntoken = self.get_espntoken(airing_id)
         url = 'http://neulion.go.com/espngeo/startSession'
         payload = {
             'channel': channel,
-            'simulcastAiringId': airing_id,
             'playbackScenario': 'HTTP_CLOUD_WIRED',
             'playerId': 'neulion',
-            'pkan': self.get_pkan(airing_id),
+            'pkan': self.get_pkan(airing_id, espntoken),
             'pkanType': 'TOKEN',
             'tokenType': 'GATEKEEPER',
-            'ttl': '480'
+            'ttl': '480',
+            'airingId': airing_id,
+            'auth_airingid': espntoken['airingId'],
+            'auth_timestamp': espntoken['timestamp'],
+            'auth_token': espntoken['token'],
+            'auth_usertrackname': espntoken['userTrackName'],
+            'simulcastAiringId': airing_id if channel!='espn3' else 0
         }
         req = self.make_request(url=url, method='post', payload=payload)
         stream_data = req.content
