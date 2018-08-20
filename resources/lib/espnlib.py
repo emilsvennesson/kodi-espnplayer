@@ -49,28 +49,33 @@ class espnlib(object):
             except:
                 pass
 
-    def make_request(self, url, method, params=None, payload=None, headers=None):
+    def make_request(self, url, method, payload=None, headers=None, return_req=False):
         """Make an HTTP request. Return the response."""
         self.log('Request URL: %s' % url)
-        self.log('Method: %s' % method)
-        if params:
-            self.log('Params: %s' % params)
-        if payload:
-            self.log('Payload: %s' % payload)
-        if headers:
-            self.log('Headers: %s' % headers)
-
-        if method == 'get':
-            req = self.http_session.get(url, params=params, headers=headers)
-        elif method == 'put':
-            req = self.http_session.put(url, params=params, data=payload, headers=headers)
-        else:  # post
-            req = self.http_session.post(url, params=params, data=payload, headers=headers)
-        self.log('Response code: %s' % req.status_code)
-        self.log('Response: %s' % req.content)
-        self.cookie_jar.save(ignore_discard=True, ignore_expires=False)
-
-        return req.content
+        try:
+            if method == 'get':
+                req = self.http_session.get(url, params=payload, headers=headers, allow_redirects=False,
+                                            verify=self.verify_ssl)
+            else:  # post
+                req = self.http_session.post(url, data=payload, headers=headers, allow_redirects=False,
+                                             verify=self.verify_ssl)
+            req.raise_for_status()
+            self.log('Response code: %s' % req.status_code)
+            self.log('Response: %s' % req.content)
+            self.cookie_jar.save(ignore_discard=True, ignore_expires=False)
+            if return_req:
+                return req
+            else:
+                return req.content
+        except requests.exceptions.HTTPError as error:
+            self.log('An HTTP error occurred: %s' % error)
+            raise
+        except requests.exceptions.ConnectionError as error:
+            self.log('Connection Error: - %s' % error.message)
+            raise
+        except requests.exceptions.RequestException as error:
+            self.log('Error: - %s' % error.value)
+            raise
 
     def login(self, username=None, password=None):
         """Complete login process for ESPN Player. Errors (auth issues, blackout,
