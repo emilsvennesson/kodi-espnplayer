@@ -1,4 +1,4 @@
-﻿# ESPN Player Kodi plugin #
+# ESPN Player Kodi plugin #
 Before reading further, please note that this plugin is unoffical and is not endorsed or supported by ESPN in any way. Not all features are supported or thoroughly tested and may not work as intended.
 
 If you're interested in helping out with the development, then please just send me a pull request. If you're reporting a bug, make sure you've enabled debugging in both the addon settings as well as in Kodi and attached the log. Feedback and constructive input are of course always welcome.
